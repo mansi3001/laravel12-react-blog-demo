@@ -3,22 +3,42 @@ import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
-import { Link } from '@inertiajs/react';
-import { BookOpen, Folder, LayoutGrid, FileText } from 'lucide-react';
+import { Link, usePage } from '@inertiajs/react';
+import { BookOpen, Folder, LayoutGrid, FileText, Shield, Key } from 'lucide-react';
 import AppLogo from './app-logo';
 
-const mainNavItems: NavItem[] = [
-    {
-        title: 'Dashboard',
-        href: '/dashboard',
-        icon: LayoutGrid,
-    },
-    {
-        title: 'Blogs',
-        href: '/blogs',
-        icon: FileText,
-    },
-];
+const getMainNavItems = (userPermissions: string[]): NavItem[] => {
+    const allItems = [
+        {
+            title: 'Dashboard',
+            href: '/dashboard',
+            icon: LayoutGrid,
+            permission: null // Dashboard always visible
+        },
+        {
+            title: 'Blogs',
+            href: '/blogs',
+            icon: FileText,
+            permission: 'blogs.view'
+        },
+        {
+            title: 'Roles',
+            href: '/roles',
+            icon: Shield,
+            permission: 'roles.view'
+        },
+        {
+            title: 'Permissions',
+            href: '/permissions',
+            icon: Key,
+            permission: 'permissions.view'
+        },
+    ];
+
+    return allItems.filter(item => 
+        !item.permission || userPermissions.includes(item.permission)
+    );
+};
 
 const footerNavItems: NavItem[] = [
     {
@@ -34,6 +54,10 @@ const footerNavItems: NavItem[] = [
 ];
 
 export function AppSidebar() {
+    const { auth } = usePage().props as any;
+    const userPermissions = auth?.user?.permissions || [];
+    const mainNavItems = getMainNavItems(userPermissions);
+
     return (
         <Sidebar collapsible="icon" variant="inset">
             <SidebarHeader>
@@ -59,3 +83,5 @@ export function AppSidebar() {
         </Sidebar>
     );
 }
+
+

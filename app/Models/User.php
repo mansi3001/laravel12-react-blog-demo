@@ -6,6 +6,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class User extends Authenticatable
 {
@@ -44,5 +45,37 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function roles(): BelongsToMany
+    {
+        return $this->belongsToMany(Role::class, 'user_roles');
+    }
+
+    public function hasRole($role): bool
+    {
+        return $this->roles()->where('slug', $role)->exists();
+    }
+
+    public function hasPermission($permission): bool
+    {
+        // Superadmin has all permissions
+        if ($this->hasRole('superadmin')) {
+            return true;
+        }
+
+        // Check if user has any roles first
+        if (!$this->roles()->exists()) {
+            return false;
+        }
+
+        return $this->roles()->whereHas('permissions', function ($query) use ($permission) {
+            $query->where('slug', $permission)->where('is_active', true);
+        })->exists();
+    }
+
+    public function isSuperAdmin(): bool
+    {
+        return $this->hasRole('superadmin');
     }
 }

@@ -44,7 +44,15 @@ class HandleInertiaRequests extends Middleware
             'name' => config('app.name'),
             'quote' => ['message' => trim($message), 'author' => trim($author)],
             'auth' => [
-                'user' => $request->user(),
+                'user' => $request->user() ? [
+                    'id' => $request->user()->id,
+                    'name' => $request->user()->name,
+                    'email' => $request->user()->email,
+                    'permissions' => $request->user()->isSuperAdmin() 
+                        ? \App\Models\Permission::pluck('slug')->values()
+                        : $request->user()->roles()->with('permissions')->get()
+                            ->pluck('permissions')->flatten()->pluck('slug')->unique()->values()
+                ] : null,
             ],
             'ziggy' => fn (): array => [
                 ...(new Ziggy)->toArray(),

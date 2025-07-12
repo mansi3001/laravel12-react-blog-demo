@@ -102,7 +102,15 @@ class BlogController extends Controller
                     'total' => $blogs->total(),
                 ]
             ],
-            'categories' => $categories
+            'categories' => $categories,
+            'auth' => [
+                'user' => [
+                    'permissions' => auth()->user()->isSuperAdmin() 
+                        ? \App\Models\Permission::pluck('slug')->values()
+                        : auth()->user()->roles()->with('permissions')->get()
+                            ->pluck('permissions')->flatten()->pluck('slug')->unique()->values()
+                ]
+            ]
         ]);
     }
 

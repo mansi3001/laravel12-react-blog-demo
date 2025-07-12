@@ -466,6 +466,12 @@ function CrudForm({
           />
         );
 
+      case 'custom':
+        if (field.render) {
+          return field.render(value, (newValue) => setFormData(prev => ({ ...prev, [field.name]: newValue })), mode);
+        }
+        return null;
+
       default:
         return (
           <Input

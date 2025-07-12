@@ -179,18 +179,18 @@ export default function CrudTable({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-16">#</TableHead>
-            {config.reorder && onRowReorder && (
-              <TableHead className="w-12">
-                <GripVertical className="h-4 w-4 text-gray-400" />
-              </TableHead>
-            )}
             {config.bulkActions && (
               <TableHead className="w-12">
                 <Checkbox
                   checked={selectedIds.length === data.length && data.length > 0}
                   onCheckedChange={handleSelectAll}
                 />
+              </TableHead>
+            )}
+            <TableHead className="w-16">#</TableHead>
+            {config.reorder && onRowReorder && (
+              <TableHead className="w-12">
+                <GripVertical className="h-4 w-4 text-gray-400" />
               </TableHead>
             )}
             {orderedColumns.map((column, index) => (
@@ -233,12 +233,6 @@ export default function CrudTable({
                             {...provided.draggableProps}
                             className={`hover:bg-gray-50 ${snapshot.isDragging ? 'bg-blue-50 shadow-lg' : ''}`}
                           >
-                            <TableCell className="text-center font-medium">
-                              {pagination ? ((pagination.current - 1) * pagination.perPage) + index + 1 : index + 1}
-                            </TableCell>
-                            <TableCell className="cursor-move p-2" {...provided.dragHandleProps}>
-                              <GripVertical className="h-4 w-4 text-gray-400 hover:text-gray-600" />
-                            </TableCell>
                             {config.bulkActions && (
                               <TableCell>
                                 <Checkbox
@@ -247,6 +241,12 @@ export default function CrudTable({
                                 />
                               </TableCell>
                             )}
+                            <TableCell className="text-center font-medium">
+                              {pagination ? ((pagination.current - 1) * pagination.perPage) + index + 1 : index + 1}
+                            </TableCell>
+                            <TableCell className="cursor-move p-2" {...provided.dragHandleProps}>
+                              <GripVertical className="h-4 w-4 text-gray-400 hover:text-gray-600" />
+                            </TableCell>
                             {orderedColumns.map(column => (
                               <TableCell key={column.key}>
                                 {column.render ? column.render(row[column.key], row) : row[column.key]}
@@ -329,14 +329,14 @@ export default function CrudTable({
                       />
                     </TableCell>
                   )}
+                  <TableCell className="text-center font-medium">
+                    {pagination ? ((pagination.current - 1) * pagination.perPage) + index + 1 : index + 1}
+                  </TableCell>
                   {orderedColumns.map(column => (
                     <TableCell key={column.key}>
                       {column.render ? column.render(row[column.key], row) : row[column.key]}
                     </TableCell>
                   ))}
-                  <TableCell className="text-center font-medium">
-                    {pagination ? ((pagination.current - 1) * pagination.perPage) + index + 1 : index + 1}
-                  </TableCell>
                   <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -358,7 +358,7 @@ export default function CrudTable({
                           </DropdownMenuItem>
                         )}
                         {customActions.map((action, index) => {
-                          if (action.show && !action.show(row)) return null;
+                          if (typeof action.show === 'function' && !action.show(row)) return null;
                           return (
                             <DropdownMenuItem 
                               key={index}
@@ -414,21 +414,23 @@ export default function CrudTable({
     }
 
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {data.map(row => {
-          const imageColumn = columns.find(col => col.key === 'image');
-          const titleColumn = columns.find(col => col.key === 'title');
-          const statusColumn = columns.find(col => col.key === 'status');
-          const categoryColumn = columns.find(col => col.key === 'category');
-          const dateColumn = columns.find(col => col.key === 'created_at');
+          // Find key columns dynamically
+          const primaryColumn = columns.find(col => col.key === 'name' || col.key === 'title') || columns[0];
+          const statusColumn = columns.find(col => col.key === 'status' || col.key === 'is_active');
+          const dateColumn = columns.find(col => col.key === 'created_at' || col.key === 'updated_at');
+          const descriptionColumn = columns.find(col => col.key === 'description');
+          const imageColumn = columns.find(col => col.key === 'image' || col.key === 'avatar');
           
           return (
             <Card key={row.id} className="hover:shadow-lg transition-shadow duration-200 overflow-hidden">
+              {/* Image Header */}
               {imageColumn && row[imageColumn.key] && (
                 <div className="relative h-32 bg-gray-100">
                   <img
                     src={row[imageColumn.key].startsWith('http') ? row[imageColumn.key] : `/storage/${row[imageColumn.key]}`}
-                    alt={row.title || 'Image'}
+                    alt={row[primaryColumn?.key] || 'Image'}
                     className="w-full h-full object-cover"
                     onError={(e) => {
                       e.currentTarget.src = 'https://placehold.co/400x200?text=No+Image';
@@ -446,46 +448,103 @@ export default function CrudTable({
                 </div>
               )}
               
-              <CardContent className="p-3">
-                {titleColumn && (
-                  <div className="mb-2">
-                    <h3 className="font-semibold text-base text-gray-900 line-clamp-2">
-                      {titleColumn.render ? titleColumn.render(row[titleColumn.key], row) : row[titleColumn.key]}
-                    </h3>
+              <CardContent className="p-4">
+                {/* Header with checkbox if no image */}
+                {!imageColumn && config.bulkActions && (
+                  <div className="flex justify-end mb-2">
+                    <Checkbox
+                      checked={selectedIds.includes(row.id)}
+                      onCheckedChange={(checked) => handleSelectItem(row.id, checked as boolean)}
+                    />
                   </div>
                 )}
                 
-                <div className="flex items-center justify-between mb-2">
+                {/* Primary Title */}
+                {primaryColumn && (
+                  <div className="mb-3">
+                    <h3 className="font-semibold text-lg text-gray-900 line-clamp-2">
+                      {primaryColumn.render ? primaryColumn.render(row[primaryColumn.key], row) : row[primaryColumn.key]}
+                    </h3>
+                    {/* Show slug or secondary info */}
+                    {row.slug && (
+                      <p className="text-sm text-gray-500 mt-1">@{row.slug}</p>
+                    )}
+                  </div>
+                )}
+                
+                {/* Description */}
+                {descriptionColumn && row[descriptionColumn.key] && (
+                  <div className="mb-3">
+                    <p className="text-sm text-gray-600 line-clamp-2">
+                      {row[descriptionColumn.key]}
+                    </p>
+                  </div>
+                )}
+                
+                {/* Dynamic Data Display */}
+                <div className="space-y-2 mb-3">
+                  {columns.slice(0, 4).map(column => {
+                    if (['name', 'title', 'description', 'image', 'avatar', 'created_at', 'updated_at'].includes(column.key)) return null;
+                    if (!row[column.key]) return null;
+                    
+                    return (
+                      <div key={column.key} className="flex justify-between items-center text-sm">
+                        <span className="text-gray-500 font-medium">{column.label}:</span>
+                        <div className="text-gray-900">
+                          {column.render ? column.render(row[column.key], row) : (
+                            Array.isArray(row[column.key]) ? (
+                              <div className="flex flex-wrap gap-1">
+                                {row[column.key].slice(0, 2).map((item: any, idx: number) => (
+                                  <Badge key={idx} variant="outline" className="text-xs">
+                                    {typeof item === 'object' ? item.name : item}
+                                  </Badge>
+                                ))}
+                                {row[column.key].length > 2 && (
+                                  <Badge variant="outline" className="text-xs">
+                                    +{row[column.key].length - 2}
+                                  </Badge>
+                                )}
+                              </div>
+                            ) : (
+                              String(row[column.key])
+                            )
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+                
+                {/* Status and Date Footer */}
+                <div className="flex items-center justify-between mb-3 pt-2 border-t border-gray-100">
                   {statusColumn && (
                     <div>
                       {statusColumn.render ? statusColumn.render(row[statusColumn.key], row) : (
-                        <Badge variant={row[statusColumn.key] === 'published' ? 'default' : 'secondary'}>
-                          {row[statusColumn.key]}
+                        <Badge variant={row[statusColumn.key] === true || row[statusColumn.key] === 'active' || row[statusColumn.key] === 'published' ? 'default' : 'secondary'}>
+                          {typeof row[statusColumn.key] === 'boolean' 
+                            ? (row[statusColumn.key] ? 'Active' : 'Inactive')
+                            : row[statusColumn.key]
+                          }
                         </Badge>
                       )}
                     </div>
                   )}
-                  {categoryColumn && (
-                    <div className="text-sm text-gray-600">
-                      {categoryColumn.render ? categoryColumn.render(row[categoryColumn.key], row) : row[categoryColumn.key]}
+                  {dateColumn && (
+                    <div className="text-xs text-gray-500">
+                      {dateColumn.render ? dateColumn.render(row[dateColumn.key], row) : 
+                        new Date(row[dateColumn.key]).toLocaleDateString()
+                      }
                     </div>
                   )}
                 </div>
                 
-                {dateColumn && (
-                  <div className="text-xs text-gray-500 mb-3">
-                    {dateColumn.render ? dateColumn.render(row[dateColumn.key], row) : 
-                      new Date(row[dateColumn.key]).toLocaleDateString()
-                    }
-                  </div>
-                )}
-                
-                <div className="flex justify-end space-x-1 pt-2 border-t border-gray-100">
+                {/* Actions */}
+                <div className="flex justify-end space-x-1">
                   {(() => {
                     const availableActions = [
                       ...(onView ? [{ type: 'view', icon: <Eye className="h-4 w-4" />, label: 'View', onClick: () => onView(row) }] : []),
                       ...(onEdit ? [{ type: 'edit', icon: <Edit className="h-4 w-4" />, label: 'Edit', onClick: () => onEdit(row) }] : []),
-                      ...customActions.filter(action => !action.show || action.show(row)).map(action => ({
+                      ...customActions.filter(action => typeof action.show !== 'function' || action.show(row)).map(action => ({
                         type: 'custom',
                         icon: action.icon,
                         label: action.label,
@@ -494,7 +553,7 @@ export default function CrudTable({
                       ...(onDelete ? [{ type: 'delete', icon: <Trash2 className="h-4 w-4" />, label: 'Delete', onClick: () => onDelete(row.id), className: 'text-red-600 hover:text-red-700' }] : [])
                     ];
 
-                    if (availableActions.length <= 4) {
+                    if (availableActions.length <= 3) {
                       return availableActions.map((action, index) => (
                         <Button 
                           key={index}

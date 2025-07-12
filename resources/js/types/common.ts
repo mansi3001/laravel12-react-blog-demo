@@ -21,7 +21,7 @@ export interface CrudTableConfig {
 export interface FormField {
   name: string;
   label: string;
-  type: 'text' | 'email' | 'password' | 'number' | 'textarea' | 'select' | 'multi-select' | 'checkbox' | 'radio' | 'file' | 'date' | 'datetime' | 'dependent-dropdown' | 'switch' | 'url';
+  type: 'text' | 'email' | 'password' | 'number' | 'textarea' | 'select' | 'multi-select' | 'checkbox' | 'radio' | 'file' | 'date' | 'datetime' | 'dependent-dropdown' | 'switch' | 'url' | 'custom';
   required?: boolean;
   options?: { value: string | number; label: string }[];
   placeholder?: string;
@@ -32,6 +32,7 @@ export interface FormField {
   column?: number; // Column span (1-4)
   minLength?: number;
   maxLength?: number;
+  render?: (value: any, onChange: (value: any) => void, mode?: string) => React.ReactNode; // for custom fields
 }
 
 export interface ApiResponse<T = any> {
