@@ -16,6 +16,12 @@ const getMainNavItems = (userPermissions: string[]): NavItem[] => {
             permission: null // Dashboard always visible
         },
         {
+            title: 'Slider',
+            href: '/slider',
+            icon: LayoutGrid,
+            permission: null // Always visible
+        },
+        {
             title: 'Blogs',
             href: '/blogs',
             icon: FileText,

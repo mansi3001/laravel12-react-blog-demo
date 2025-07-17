@@ -18,6 +18,23 @@ Route::get('/dashboard', function () {
     return Inertia::render('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
+Route::get('/slider', function () {
+    return Inertia::render('Slider/Index');
+})->middleware(['auth', 'verified'])->name('slider');
+
+// Add these routes for each slider variant
+Route::get('/slider/classic', function () {
+    return Inertia::render('Slider/Classic');
+})->middleware(['auth', 'verified']);
+
+Route::get('/slider/fade', function () {
+    return Inertia::render('Slider/Fade');
+})->middleware(['auth', 'verified']);
+
+Route::get('/slider/thumbnails', function () {
+    return Inertia::render('Slider/Thumbnails');
+})->middleware(['auth', 'verified']);
+
 // Blog Routes
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/blogs', [\App\Http\Controllers\Api\BlogController::class, 'webIndex'])->name('blogs.index');
