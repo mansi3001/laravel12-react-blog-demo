@@ -39,6 +39,12 @@ const getMainNavItems = (userPermissions: string[]): NavItem[] => {
             icon: Key,
             permission: 'permissions.view'
         },
+        {
+            title: 'Dynamic Dependancy',
+            href: '/location-form',
+            icon: Key,
+            permission: null
+        },
     ];
 
     return allItems.filter(item => 
@@ -89,5 +95,7 @@ export function AppSidebar() {
         </Sidebar>
     );
 }
+
+export default AppSidebar;
 
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Head, useForm } from '@inertiajs/react';
+import { Head, useForm, router } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
 
 export default function LocationForm({ countries }) {
@@ -43,17 +43,20 @@ export default function LocationForm({ countries }) {
         }
     }, [data.state_id]);
 
-    const fetchStates = async (countryId) => {
+    const fetchStates = (countryId) => {
         setLoadingStates(true);
-        try {
-            const response = await fetch(`/states/${countryId}`);
-            const statesData = await response.json();
-            setStates(statesData);
-        } catch (error) {
-            console.error('Error fetching states:', error);
-        } finally {
-            setLoadingStates(false);
-        }
+        router.get(`/states/${countryId}`, {}, {
+            only: ['states'],
+            preserveState: true,
+            onSuccess: (page) => {
+                setStates(page.props.states || []);
+                setLoadingStates(false);
+            },
+            onError: () => {
+                setStates([]);
+                setLoadingStates(false);
+            }
+        });
     };
 
     const fetchCities = async (stateId) => {
