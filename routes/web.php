@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\LocationController;
 use App\Http\Controllers\Settings\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -38,7 +39,7 @@ Route::get('/slider/thumbnails', function () {
 // Blog Routes
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/blogs', [\App\Http\Controllers\Api\BlogController::class, 'webIndex'])->name('blogs.index');
-    
+
     Route::post('/blogs', [\App\Http\Controllers\Api\BlogController::class, 'store'])->name('blogs.store');
     Route::put('/blogs/{blog}', [\App\Http\Controllers\Api\BlogController::class, 'update'])->name('blogs.update');
     Route::delete('/blogs/{blog}', [\App\Http\Controllers\Api\BlogController::class, 'destroy'])->name('blogs.destroy');
@@ -53,13 +54,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('/roles/{role}', [\App\Http\Controllers\Api\RoleController::class, 'update'])->name('roles.update');
     Route::delete('/roles/{role}', [\App\Http\Controllers\Api\RoleController::class, 'destroy'])->name('roles.destroy');
     Route::post('/roles/bulk-delete', [\App\Http\Controllers\Api\RoleController::class, 'bulkDelete'])->name('roles.bulk-delete');
-    
+
     Route::get('/permissions', [\App\Http\Controllers\Api\PermissionController::class, 'webIndex'])->name('permissions.index');
     Route::post('/permissions', [\App\Http\Controllers\Api\PermissionController::class, 'store'])->name('permissions.store');
     Route::put('/permissions/{permission}', [\App\Http\Controllers\Api\PermissionController::class, 'update'])->name('permissions.update');
     Route::delete('/permissions/{permission}', [\App\Http\Controllers\Api\PermissionController::class, 'destroy'])->name('permissions.destroy');
     Route::post('/permissions/bulk-delete', [\App\Http\Controllers\Api\PermissionController::class, 'bulkDelete'])->name('permissions.bulk-delete');
 });
+
+Route::get('/location-form', [\App\Http\Controllers\Api\LocationController::class, 'index'])->name('location.form');
+    Route::get('/states/{country}', [LocationController::class, 'getStates'])->name('states.get');
+    Route::get('/cities/{state}', [LocationController::class, 'getCities'])->name('cities.get');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
