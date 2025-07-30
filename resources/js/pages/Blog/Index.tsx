@@ -361,6 +361,8 @@ export default function BlogIndex({ blogs, categories, countries = [] }: BlogInd
   const handleSubmit = async (formData: Record<string, any>) => {
     setIsSubmitting(true);
     
+    console.log('Form data received:', formData);
+    
     // Prepare form data for submission
     const submitData = {
       title: formData.title || '',
@@ -378,6 +380,8 @@ export default function BlogIndex({ blogs, categories, countries = [] }: BlogInd
       is_active: formData.is_active !== undefined ? formData.is_active : true,
       image: formData.image || null
     };
+    
+    console.log('Submit data prepared:', submitData);
     
     if (modalMode === 'create') {
       router.post('/blogs', submitData, {

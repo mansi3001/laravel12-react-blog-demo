@@ -60,13 +60,13 @@ export const blogValidationRules: Record<string, ValidationRule[]> = {
   priority: [
     { rule: 'required', message: 'Priority is required' }
   ],
-  country: [
+  country_id: [
     { rule: 'required', message: 'Country is required' }
   ],
-  state: [
+  state_id: [
     { rule: 'required', message: 'State is required' }
   ],
-  city: [
+  city_id: [
     { rule: 'required', message: 'City is required' }
   ],
   skills: [

@@ -86,6 +86,10 @@ function CrudForm({
         // Fallback to basic validation
         const errors: Record<string, string> = {};
         fields.forEach((field) => {
+            // Skip dependent-dropdown fields as they have nested validation
+            if (field.type === 'dependent-dropdown') {
+                return;
+            }
             const value = formData[field.name];
             if (field.required && (!value || (typeof value === 'string' && value.trim() === ''))) {
                 errors[field.name] = `${field.label} is required`;
@@ -125,6 +129,8 @@ function CrudForm({
 
         // Frontend validation
         const frontendErrors = validateForm();
+        console.log('Validation errors:', frontendErrors);
+        console.log('Form data for validation:', formData);
         if (Object.keys(frontendErrors).length > 0) {
             setValidationErrors(frontendErrors);
             setShowErrors(true);
