@@ -18,3 +18,8 @@ Route::get('blogs/export', [BlogController::class, 'export']);
 Route::get('categories', function () {
     return \App\Models\Category::active()->get();
 });
+
+// Location API Routes
+Route::get('countries', function () {
+    return \App\Models\Country::orderBy('name')->get();
+});

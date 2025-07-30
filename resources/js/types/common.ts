@@ -33,6 +33,14 @@ export interface FormField {
   minLength?: number;
   maxLength?: number;
   render?: (value: any, onChange: (value: any) => void, mode?: string) => React.ReactNode; // for custom fields
+  dependentConfig?: Array<{
+    name: string;
+    label: string;
+    options?: { value: string | number; label: string }[];
+    dependencies?: Record<string, { value: string | number; label: string }[]>;
+    apiEndpoint?: string;
+  }>;
+  onDependentChange?: (fieldName: string, value: string, formData: Record<string, any>) => void;
 }
 
 export interface ApiResponse<T = any> {

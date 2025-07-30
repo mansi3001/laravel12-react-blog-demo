@@ -45,6 +45,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/blogs/{blog}', [\App\Http\Controllers\Api\BlogController::class, 'destroy'])->name('blogs.destroy');
     Route::post('/blogs/bulk-delete', [\App\Http\Controllers\Api\BlogController::class, 'bulkDelete'])->name('blogs.bulk-delete');
     Route::post('/blogs/reorder', [\App\Http\Controllers\Api\BlogController::class, 'reorder'])->name('blogs.reorder');
+    Route::get('/blogs/states/{country}', [\App\Http\Controllers\Api\BlogController::class, 'getStates'])->name('blogs.states.get');
+    Route::get('/blogs/cities/{state}', [\App\Http\Controllers\Api\BlogController::class, 'getCities'])->name('blogs.cities.get');
 });
 
 // Role & Permission Routes

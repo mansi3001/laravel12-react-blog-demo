@@ -15,6 +15,12 @@ import useCrudTable from '@/hooks/useCrudTable';
 import { validateBlogForm } from '@/validations/blogValidation';
 import ConfirmDialog from '@/components/Common/ConfirmDialog';
 
+interface Country {
+  id: number;
+  name: string;
+  code: string;
+}
+
 interface BlogIndexProps {
   blogs: {
     data: Blog[];
@@ -26,9 +32,10 @@ interface BlogIndexProps {
     };
   };
   categories: Category[];
+  countries: Country[];
 }
 
-export default function BlogIndex({ blogs, categories }: BlogIndexProps) {
+export default function BlogIndex({ blogs, categories, countries = [] }: BlogIndexProps) {
   const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
   
   const {
@@ -221,7 +228,24 @@ export default function BlogIndex({ blogs, categories }: BlogIndexProps) {
       name: 'location',
       label: 'Location',
       type: 'dependent-dropdown',
-      column: 3
+      column: 3,
+      dependentConfig: [
+        {
+          name: 'country_id',
+          label: 'Country',
+          options: countries.map(country => ({ value: country.id, label: country.name }))
+        },
+        {
+          name: 'state_id',
+          label: 'State',
+          apiEndpoint: '/blogs/states/{country_id}'
+        },
+        {
+          name: 'city_id',
+          label: 'City',
+          apiEndpoint: '/blogs/cities/{state_id}'
+        }
+      ],
     },
     {
       name: 'priority',
@@ -345,9 +369,9 @@ export default function BlogIndex({ blogs, categories }: BlogIndexProps) {
       category_id: formData.category_id || 0,
       tags: formData.tags || [],
       priority: formData.priority || 'medium',
-      country: formData.country || '',
-      state: formData.state || '',
-      city: formData.city || '',
+      country_id: formData.country_id || '',
+      state_id: formData.state_id || '',
+      city_id: formData.city_id || '',
       skills: formData.skills || [],
       publish_date: formData.publish_date || '',
       is_featured: formData.is_featured || false,
@@ -516,9 +540,9 @@ export default function BlogIndex({ blogs, categories }: BlogIndexProps) {
             status: editingBlog.status || 'draft',
             category_id: editingBlog.category?.id || '',
             tags: Array.isArray(editingBlog.tags) ? editingBlog.tags : [],
-            country: editingBlog.country || '',
-            state: editingBlog.state || '',
-            city: editingBlog.city || '',
+            country_id: editingBlog.country_id || '',
+            state_id: editingBlog.state_id || '',
+            city_id: editingBlog.city_id || '',
             priority: editingBlog.priority || 'medium',
             is_featured: Boolean(editingBlog.is_featured),
             skills: Array.isArray(editingBlog.skills) ? editingBlog.skills : [],

@@ -29,6 +29,10 @@ class LocationController extends Controller
                       ->orderBy('name')
                       ->get();
         
+        if ($request->expectsJson() || $request->is('api/*')) {
+            return response()->json($states);
+        }
+        
         return Inertia::render('LocationForm/Index', [
             'countries' => Country::orderBy('name')->get(),
             'states' => $states
@@ -40,6 +44,10 @@ class LocationController extends Controller
         $cities = City::where('state_id', $stateId)
                      ->orderBy('name')
                      ->get();
+        
+        if ($request->expectsJson() || $request->is('api/*')) {
+            return response()->json($cities);
+        }
         
         return Inertia::render('LocationForm/Index', [
             'countries' => Country::orderBy('name')->get(),

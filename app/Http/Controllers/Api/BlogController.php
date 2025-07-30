@@ -7,11 +7,15 @@ use App\Http\Requests\Blog\StoreBlogRequest;
 use App\Http\Requests\Blog\UpdateBlogRequest;
 use App\Http\Resources\BlogResource;
 use App\Models\Blog;
+use App\Models\City;
+use App\Models\Country;
+use App\Models\State;
 use App\Services\BlogService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
+use Inertia\Inertia;
 
 class BlogController extends Controller
 {
@@ -22,9 +26,11 @@ class BlogController extends Controller
     public function index(Request $request): JsonResponse
     {
         $blogs = $this->blogService->getBlogs($request->all());
+        $countries = \App\Models\Country::orderBy('name')->get();
         
         return response()->json([
             'data' => BlogResource::collection($blogs->items()),
+            'countries' => $countries,
             'meta' => [
                 'current_page' => $blogs->currentPage(),
                 'last_page' => $blogs->lastPage(),
@@ -32,6 +38,31 @@ class BlogController extends Controller
                 'total' => $blogs->total(),
             ]
         ]);
+    }
+
+    public function getStates(Request $request, $countryId)
+    {
+        $states = State::where('country_id', $countryId)
+                      ->orderBy('name')
+                      ->get();
+        
+        return response()->json($states);
+    }
+
+    public function getCities(Request $request, $stateId)
+    {
+        $cities = City::where('state_id', $stateId)
+                     ->orderBy('name')
+                     ->get();
+        
+        // if ($request->expectsJson() || $request->is('api/*')) {
+            return response()->json($cities);
+        // }
+        
+        // return Inertia::render('Blog/Index', [
+        //     'countries' => Country::orderBy('name')->get(),
+        //     'cities' => $cities
+        // ]);
     }
 
     public function store(StoreBlogRequest $request): RedirectResponse
@@ -91,6 +122,7 @@ class BlogController extends Controller
     {
         $blogs = $this->blogService->getBlogs($request->all());
         $categories = \App\Models\Category::active()->get();
+        $countries = \App\Models\Country::orderBy('name')->get();
         
         return \Inertia\Inertia::render('Blog/Index', [
             'blogs' => [
@@ -103,6 +135,7 @@ class BlogController extends Controller
                 ]
             ],
             'categories' => $categories,
+            'countries' => $countries,
             'auth' => [
                 'user' => [
                     'permissions' => auth()->user()->isSuperAdmin() 
