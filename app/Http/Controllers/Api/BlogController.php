@@ -55,14 +55,16 @@ class BlogController extends Controller
                      ->orderBy('name')
                      ->get();
         
-        // if ($request->expectsJson() || $request->is('api/*')) {
-            return response()->json($cities);
-        // }
+        return response()->json($cities);
+    }
+
+    public function getSubjects(Request $request, $courseId)
+    {
+        $subjects = \App\Models\Subject::where('course_id', $courseId)
+                      ->orderBy('name')
+                      ->get();
         
-        // return Inertia::render('Blog/Index', [
-        //     'countries' => Country::orderBy('name')->get(),
-        //     'cities' => $cities
-        // ]);
+        return response()->json($subjects);
     }
 
     public function store(StoreBlogRequest $request): RedirectResponse
@@ -123,6 +125,7 @@ class BlogController extends Controller
         $blogs = $this->blogService->getBlogs($request->all());
         $categories = \App\Models\Category::active()->get();
         $countries = \App\Models\Country::orderBy('name')->get();
+        $courses = \App\Models\Course::orderBy('name')->get();
         
         return \Inertia\Inertia::render('Blog/Index', [
             'blogs' => [
@@ -136,6 +139,7 @@ class BlogController extends Controller
             ],
             'categories' => $categories,
             'countries' => $countries,
+            'courses' => $courses,
             'auth' => [
                 'user' => [
                     'permissions' => auth()->user()->isSuperAdmin() 

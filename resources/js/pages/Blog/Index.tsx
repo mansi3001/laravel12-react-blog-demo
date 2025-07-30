@@ -21,6 +21,11 @@ interface Country {
   code: string;
 }
 
+interface Course {
+  id: number;
+  name: string;
+}
+
 interface BlogIndexProps {
   blogs: {
     data: Blog[];
@@ -33,9 +38,10 @@ interface BlogIndexProps {
   };
   categories: Category[];
   countries: Country[];
+  courses: Course[];
 }
 
-export default function BlogIndex({ blogs, categories, countries = [] }: BlogIndexProps) {
+export default function BlogIndex({ blogs, categories, countries = [], courses = [] }: BlogIndexProps) {
   const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
   
   const {
@@ -248,6 +254,24 @@ export default function BlogIndex({ blogs, categories, countries = [] }: BlogInd
       ],
     },
     {
+      name: 'education',
+      label: 'Education',
+      type: 'dependent-dropdown',
+      column: 2,
+      dependentConfig: [
+        {
+          name: 'course_id',
+          label: 'Course',
+          options: courses.map(course => ({ value: course.id, label: course.name }))
+        },
+        {
+          name: 'subject_id',
+          label: 'Subject',
+          apiEndpoint: '/blogs/subjects/{course_id}'
+        }
+      ],
+    },
+    {
       name: 'priority',
       label: 'Priority',
       type: 'radio',
@@ -374,6 +398,8 @@ export default function BlogIndex({ blogs, categories, countries = [] }: BlogInd
       country_id: formData.country_id || '',
       state_id: formData.state_id || '',
       city_id: formData.city_id || '',
+      course_id: formData.course_id || '',
+      subject_id: formData.subject_id || '',
       skills: formData.skills || [],
       publish_date: formData.publish_date || '',
       is_featured: formData.is_featured || false,
@@ -547,6 +573,8 @@ export default function BlogIndex({ blogs, categories, countries = [] }: BlogInd
             country_id: editingBlog.country_id || '',
             state_id: editingBlog.state_id || '',
             city_id: editingBlog.city_id || '',
+            course_id: editingBlog.course_id || '',
+            subject_id: editingBlog.subject_id || '',
             priority: editingBlog.priority || 'medium',
             is_featured: Boolean(editingBlog.is_featured),
             skills: Array.isArray(editingBlog.skills) ? editingBlog.skills : [],

@@ -47,6 +47,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/blogs/reorder', [\App\Http\Controllers\Api\BlogController::class, 'reorder'])->name('blogs.reorder');
     Route::get('/blogs/states/{country}', [\App\Http\Controllers\Api\BlogController::class, 'getStates'])->name('blogs.states.get');
     Route::get('/blogs/cities/{state}', [\App\Http\Controllers\Api\BlogController::class, 'getCities'])->name('blogs.cities.get');
+    Route::get('/blogs/subjects/{course}', [\App\Http\Controllers\Api\BlogController::class, 'getSubjects'])->name('blogs.subjects.get');
 });
 
 // Role & Permission Routes

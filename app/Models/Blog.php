@@ -23,6 +23,8 @@ class Blog extends Model
         'country_id',
         'state_id',
         'city_id',
+        'course_id',
+        'subject_id',
         'priority',
         'is_featured',
         'skills',
