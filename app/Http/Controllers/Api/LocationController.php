@@ -29,7 +29,10 @@ class LocationController extends Controller
                       ->orderBy('name')
                       ->get();
         
-        return response()->json($states);
+        return Inertia::render('LocationForm/Index', [
+            'countries' => Country::orderBy('name')->get(),
+            'states' => $states
+        ]);
     }
 
     public function getCities(Request $request, $stateId)
@@ -38,7 +41,10 @@ class LocationController extends Controller
                      ->orderBy('name')
                      ->get();
         
-        return response()->json($cities);
+        return Inertia::render('LocationForm/Index', [
+            'countries' => Country::orderBy('name')->get(),
+            'cities' => $cities
+        ]);
     }
 
     public function store(Request $request)

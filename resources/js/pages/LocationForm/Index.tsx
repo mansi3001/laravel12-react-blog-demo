@@ -59,17 +59,20 @@ export default function LocationForm({ countries }) {
         });
     };
 
-    const fetchCities = async (stateId) => {
+    const fetchCities = (stateId) => {
         setLoadingCities(true);
-        try {
-            const response = await fetch(`/cities/${stateId}`);
-            const citiesData = await response.json();
-            setCities(citiesData);
-        } catch (error) {
-            console.error('Error fetching cities:', error);
-        } finally {
-            setLoadingCities(false);
-        }
+        router.get(`/cities/${stateId}`, {}, {
+            only: ['cities'],
+            preserveState: true,
+            onSuccess: (page) => {
+                setCities(page.props.cities || []);
+                setLoadingCities(false);
+            },
+            onError: () => {
+                setCities([]);
+                setLoadingCities(false);
+            }
+        });
     };
 
     const handleSubmit = (e) => {
